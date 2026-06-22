@@ -59,13 +59,21 @@ export function ListCard({ entry, bgColor }: ListCardProps) {
       viewport={{ once: true, margin: "-20px" }}
       transition={{ type: "spring", stiffness: 300, damping: 24 }}
       className={`brutal-card p-3 ${bgColor} flex flex-col relative overflow-hidden cursor-pointer select-none`}
-      onPointerDown={startPress}
-      onPointerUp={cancelPress}
-      onPointerLeave={cancelPress}
+      onPointerDown={(e) => {
+        // Prevent default touch actions like text selection on long press
+        e.currentTarget.setPointerCapture(e.pointerId);
+        startPress();
+      }}
+      onPointerUp={(e) => {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+        cancelPress();
+      }}
+      onPointerCancel={cancelPress}
       onContextMenu={(e) => {
         // Prevent right click menu on mobile so long press works smoothly
         if (isPressing) e.preventDefault();
       }}
+      style={{ WebkitTouchCallout: "none" }}
     >
       {/* Progress Filler overlay */}
       <motion.div 
@@ -84,7 +92,7 @@ export function ListCard({ entry, bgColor }: ListCardProps) {
 
       <div className="flex items-start justify-between z-10 w-full gap-2 pr-4 relative pointer-events-none">
         <div className="flex flex-col overflow-hidden">
-          <h2 className="text-xl font-press text-black leading-none truncate mb-2 pointer-events-none">{entry.song}</h2>
+          <h2 className="text-base sm:text-xl font-press text-black leading-tight line-clamp-2 mb-2 pointer-events-none">{entry.song}</h2>
           <h3 className="text-sm font-vt text-black/80 uppercase tracking-widest flex items-center gap-1 pointer-events-none">
             <Music size={12} strokeWidth={3} />
             <span className="truncate">{entry.artist}</span>

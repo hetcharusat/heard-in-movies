@@ -90,10 +90,25 @@ export function EntryForm({ initialNextNumber }: EntryFormProps) {
   return (
     <div className="flex flex-col gap-8 pb-8">
       
-      {/* Search Section */}
-      <div className="flex flex-col gap-6 p-5 brutal-card bg-yellow-300 relative z-20">
-        <SongSearch selectedSong={song} onSelect={setSong} />
-        <MovieSearch selectedMovie={movie} onSelect={setMovie} />
+      {/* Search Sections (Stepper) */}
+      <div className="flex flex-col gap-4 relative z-20">
+        
+        {/* Step 1: Song Search */}
+        <div className="p-5 brutal-card bg-yellow-300 relative">
+          <div className="absolute -top-3 -left-3 w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-press text-sm border-2 border-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] z-10">
+            1
+          </div>
+          <SongSearch selectedSong={song} onSelect={setSong} />
+        </div>
+
+        {/* Step 2: Movie Search */}
+        <div className={`p-5 brutal-card bg-cyan-300 relative transition-all duration-300 ${!song ? 'opacity-50 pointer-events-none grayscale' : ''}`}>
+          <div className="absolute -top-3 -left-3 w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-press text-sm border-2 border-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] z-10">
+            2
+          </div>
+          <MovieSearch selectedMovie={movie} onSelect={setMovie} />
+        </div>
+
       </div>
 
       {/* Auto-filled Preview Section */}

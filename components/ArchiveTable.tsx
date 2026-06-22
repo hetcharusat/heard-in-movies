@@ -63,10 +63,10 @@ export function ArchiveTable({ initialEntries }: ArchiveTableProps) {
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => setIsSearchOpen(true)}
-              className="w-full flex items-center justify-center gap-2 text-sm font-black uppercase tracking-wider bg-white hover:bg-gray-100 transition-colors"
+              className="w-full flex items-center justify-center gap-2 text-sm font-press uppercase tracking-wider bg-white hover:bg-gray-100 transition-colors py-3 overflow-hidden"
             >
               <Search size={16} strokeWidth={3} />
-              Search & Filter
+              <span className="text-[10px]">Search & Filter</span>
             </motion.button>
           ) : (
             <motion.div 
@@ -75,11 +75,11 @@ export function ArchiveTable({ initialEntries }: ArchiveTableProps) {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="flex flex-col gap-4 p-4"
+              className="flex flex-col gap-4 p-4 overflow-hidden"
             >
               <div className="flex justify-between items-center mb-1">
-                <span className="font-black uppercase tracking-widest text-sm text-black">Filters</span>
-                <button onClick={() => setIsSearchOpen(false)} className="text-black font-black uppercase text-xs border-b-2 border-black hover:text-black/70 transition-colors">Close</button>
+                <span className="font-press uppercase tracking-widest text-[10px] text-black">Filters</span>
+                <button onClick={() => setIsSearchOpen(false)} className="text-black font-press uppercase text-[8px] border-b-2 border-black hover:text-black/70 transition-colors">Close</button>
               </div>
               
               <Input 
@@ -88,17 +88,18 @@ export function ArchiveTable({ initialEntries }: ArchiveTableProps) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onClear={() => setSearchQuery("")}
+                className="font-vt text-lg"
               />
               
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-black uppercase tracking-wider text-black flex items-center gap-1">
+                <label className="text-sm font-press text-[10px] uppercase tracking-wider text-black flex items-center gap-1">
                   <Filter size={16} strokeWidth={3} /> Filter by Movie
                 </label>
                 <div className="relative">
                   <select
                     value={selectedMovie}
                     onChange={(e) => setSelectedMovie(e.target.value)}
-                    className="brutal-input w-full p-3 text-sm appearance-none cursor-pointer"
+                    className="brutal-input w-full p-3 font-vt text-base appearance-none cursor-pointer"
                   >
                     {uniqueMovies.map(movie => (
                       <option key={movie} value={movie}>{movie}</option>
@@ -111,17 +112,17 @@ export function ArchiveTable({ initialEntries }: ArchiveTableProps) {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-black uppercase tracking-wider text-black flex items-center gap-1">
+                <label className="text-sm font-press text-[10px] uppercase tracking-wider text-black flex items-center gap-1">
                   <Filter size={16} strokeWidth={3} /> Sort By Date
                 </label>
                 <div className="relative">
                   <select
                     value={sortOrder}
                     onChange={(e) => setSortOrder(e.target.value as "desc" | "asc")}
-                    className="brutal-input w-full p-3 text-sm appearance-none cursor-pointer"
+                    className="brutal-input w-full p-3 font-vt text-base appearance-none cursor-pointer"
                   >
-                    <option value="desc">Newest First (Descending)</option>
-                    <option value="asc">Oldest First (Ascending)</option>
+                    <option value="desc">Newest First</option>
+                    <option value="asc">Oldest First</option>
                   </select>
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-black">
                     ▼

@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { Input } from "./ui/Input";
+import { Button } from "./ui/Button";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Song } from "@/lib/types";
-import { Music, Loader2 } from "lucide-react";
+import { Music, Loader2, Search, AlertCircle } from "lucide-react";
 
 interface SongSearchProps {
   onSelect: (song: Song) => void;
@@ -16,8 +17,27 @@ export function SongSearch({ onSelect, selectedSong }: SongSearchProps) {
   const [results, setResults] = useState<Song[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [error, setError] = useState("");
   
   const debouncedQuery = useDebounce(query, 1000);
+
+  const handleSearch = async (q: string) => {
+    if (!q.trim()) return;
+    setIsSearching(true);
+    setError("");
+    try {
+        const res = await fetch(`/api/songs?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        if (data.results) {
+          setResults(data.results);
+          setIsOpen(true);
+        }
+    } catch (err) {
+        setError("Search failed");
+    } finally {
+        setIsSearching(false);
+    }
+  };
 
   useEffect(() => {
     if (selectedSong && query === selectedSong.title) {
@@ -31,74 +51,79 @@ export function SongSearch({ onSelect, selectedSong }: SongSearchProps) {
       return;
     }
 
-    const searchSongs = async () => {
-      setIsSearching(true);
-      try {
-        const res = await fetch(`/api/songs?q=${encodeURIComponent(debouncedQuery)}`);
-        const data = await res.json();
-        if (data.results) {
-          setResults(data.results);
-          setIsOpen(true);
-        }
-      } catch (error) {
-        console.error("Failed to search songs", error);
-      } finally {
-        setIsSearching(false);
-      }
-    };
-
-    searchSongs();
+    handleSearch(debouncedQuery);
   }, [debouncedQuery, selectedSong, query]);
-
-  const handleSelect = (song: Song) => {
-    setQuery(song.title);
-    setIsOpen(false);
-    onSelect(song);
-  };
-
-  const handleClear = () => {
-    setQuery("");
-    setResults([]);
-    setIsOpen(false);
-    // Let parent handle clear if needed
-  };
 
   return (
     <div className="relative w-full z-20">
-      <div className="relative">
-        <Input
-          label="Search Song"
-          icon
-          placeholder="e.g. Where Is My Mind"
+      <h2 className="text-xl font-press uppercase tracking-tighter text-black flex items-center gap-2 mb-4">
+        <Music size={24} strokeWidth={3} />
+        Find Song
+      </h2>
+      <div className="flex gap-2 relative">
+        <Input 
+          icon 
+          placeholder="Search for a track..." 
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => { if (results.length > 0) setIsOpen(true); }}
-          onClear={handleClear}
+          onClear={() => setQuery("")}
+          className="font-vt text-xl"
         />
-        {isSearching && (
-          <div className="absolute right-12 top-[38px] text-accent-primary animate-spin">
-            <Loader2 size={18} />
-          </div>
-        )}
+        <Button 
+          onClick={() => handleSearch(query)} 
+          isLoading={isSearching}
+          disabled={!query || isSearching}
+          className="!px-4"
+        >
+          <Search size={20} strokeWidth={3} />
+        </Button>
       </div>
 
-      {isOpen && results.length > 0 && (
-        <div className="absolute top-full left-0 mt-2 w-full brutal-card bg-white max-h-60 overflow-y-auto hide-scrollbar z-50 animate-in fade-in slide-in-from-top-2 duration-300">
-          {results.map((song) => (
-            <button
-              key={song.id}
-              onClick={() => handleSelect(song)}
-              className="w-full text-left px-4 py-3 border-b-4 border-black hover:bg-yellow-300 active:bg-cyan-300 transition-colors flex items-start gap-3 last:border-b-0"
-            >
-              <div className="mt-0.5 text-black border-2 border-black p-1.5 bg-fuchsia-300">
-                <Music size={16} strokeWidth={3} />
+      {error && (
+        <p className="text-sm font-bold text-red-600 bg-white border-2 border-black p-2 flex items-center gap-1 font-vt text-lg mt-2">
+          <AlertCircle size={16} strokeWidth={3} />
+          {error}
+        </p>
+      )}
+
+      {results.length > 0 && !selectedSong && isOpen && (
+        <div className="flex flex-col gap-2 mt-2">
+          <h3 className="text-xs font-press uppercase tracking-widest text-black/60 mb-1">Results</h3>
+          <div className="flex flex-col gap-2">
+            {results.map((song) => (
+              <div 
+                key={song.id}
+                onClick={() => {
+                  onSelect(song);
+                  setIsOpen(false);
+                  setQuery(song.title);
+                }}
+                className="brutal-card bg-white p-3 cursor-pointer hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all flex flex-col gap-1"
+              >
+                <span className="font-bold text-lg leading-tight line-clamp-1">{song.title}</span>
+                <span className="text-sm font-vt uppercase tracking-widest text-black/60">{song.artist}</span>
               </div>
-              <div className="flex flex-col overflow-hidden text-black">
-                <span className="font-black truncate w-full">{song.title}</span>
-                <span className="text-xs font-bold truncate w-full">{song.artist}</span>
-              </div>
-            </button>
-          ))}
+            ))}
+          </div>
+        </div>
+      )}
+
+      {selectedSong && (
+        <div className="mt-2 brutal-card bg-green-400 p-4 flex justify-between items-center relative overflow-hidden">
+          <div className="flex flex-col z-10">
+            <span className="text-[10px] font-press uppercase tracking-widest text-black/60 mb-1">Selected Song</span>
+            <span className="font-bold text-xl leading-tight line-clamp-1">{selectedSong.title}</span>
+            <span className="text-sm font-vt uppercase tracking-widest">{selectedSong.artist}</span>
+          </div>
+          <button 
+            onClick={() => {
+                onSelect(null as any);
+                setQuery("");
+            }}
+            className="text-xs font-press uppercase border-b-2 border-black hover:text-black/60 transition-colors z-10 text-[8px]"
+          >
+            Change
+          </button>
         </div>
       )}
     </div>

@@ -9,13 +9,13 @@ export default async function AddPage() {
   const nextNumber = entries.length + 1;
 
   return (
-    <div className="flex flex-col h-full animate-in fade-in duration-500 pt-2 pb-6 min-h-[100dvh]">
+    <div className="flex flex-col h-full animate-in fade-in duration-300 pt-2 pb-6 min-h-[100dvh]">
       <header className="mb-6 flex items-start justify-between gap-4">
-        <div className="flex flex-col gap-1 flex-1 mt-2">
-          <h1 className="font-press text-2xl md:text-3xl uppercase tracking-tighter text-black leading-snug">
+        <div className="flex flex-col flex-1 mt-2">
+          <h1 className="font-press text-[20px] md:text-3xl uppercase tracking-tighter text-black leading-snug">
             ADD<br/>ENTRY
           </h1>
-          <p className="font-vt text-lg font-bold text-black/80 mt-2">
+          <p className="font-vt text-lg md:text-2xl font-bold text-black/80 mt-2">
             Find a song and the movie you heard it in.
           </p>
         </div>

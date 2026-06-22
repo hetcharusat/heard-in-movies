@@ -9,8 +9,7 @@ export async function getEntriesServer(): Promise<ArchiveEntry[]> {
 
   try {
     const res = await fetch(`${APPS_SCRIPT_URL}?action=entries`, {
-      cache: "force-cache",
-      next: { tags: ["entries"] },
+      next: { tags: ["entries"], revalidate: 60 },
     });
     
     if (!res.ok) throw new Error("Failed to fetch from Google Apps Script");
