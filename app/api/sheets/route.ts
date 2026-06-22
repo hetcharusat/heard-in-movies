@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     const data = await res.json();
     
     // Instantly invalidate the cache so the list updates
-    revalidateTag("entries");
+    revalidateTag("entries", "max");
 
     return NextResponse.json(data);
   } catch (error: any) {
