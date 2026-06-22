@@ -3,13 +3,18 @@
 import { ArchiveEntry } from "@/lib/types";
 import { Search, Filter } from "lucide-react";
 import { useState, useMemo } from "react";
+import useSWR from "swr";
 import { Input } from "./ui/Input";
 import { ListCard } from "./ListCard";
 import { motion, AnimatePresence } from "framer-motion";
 
+import { fetchEntries } from "@/lib/sheets";
+
 interface ArchiveTableProps {
   initialEntries: ArchiveEntry[];
 }
+
+const fetcher = () => fetchEntries();
 
 export function ArchiveTable({ initialEntries }: ArchiveTableProps) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -17,7 +22,18 @@ export function ArchiveTable({ initialEntries }: ArchiveTableProps) {
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  const entries = [...initialEntries];
+  const { data: rawEntries = initialEntries } = useSWR<ArchiveEntry[]>('/api/sheets', fetcher, {
+    fallbackData: initialEntries,
+    revalidateOnFocus: true,
+    refreshInterval: 15000, // auto-poll every 15s
+  });
+
+  const entries = useMemo(() => {
+    return rawEntries.map((entry, idx) => ({
+      ...entry,
+      number: entry.number ?? (rawEntries.length - idx),
+    }));
+  }, [rawEntries]);
 
   const uniqueMovies = useMemo(() => {
     const movies = new Set(entries.map(e => e.movie));
@@ -88,7 +104,7 @@ export function ArchiveTable({ initialEntries }: ArchiveTableProps) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onClear={() => setSearchQuery("")}
-                className="font-vt text-lg"
+                className="font-vt text-xl"
               />
               
               <div className="flex flex-col gap-2">
@@ -134,23 +150,20 @@ export function ArchiveTable({ initialEntries }: ArchiveTableProps) {
         </AnimatePresence>
       </div>
 
-      <motion.div 
-        layout
-        className="flex flex-col gap-3"
-      >
+      <div className="flex flex-col gap-3">
         {filteredEntries.length === 0 ? (
-           <motion.div layout className="brutal-card p-4 flex items-center justify-center bg-gray-200 text-black">
+           <div className="brutal-card p-4 flex items-center justify-center bg-gray-200 text-black">
              <span className="font-bold uppercase tracking-tighter text-sm">No matches found.</span>
-           </motion.div>
+           </div>
         ) : (
           filteredEntries.map((entry, idx) => {
             const colors = ['bg-yellow-300', 'bg-cyan-300', 'bg-fuchsia-300', 'bg-green-300'];
             const bgColor = colors[idx % colors.length];
 
-            return <ListCard key={entry.id} entry={entry} bgColor={bgColor} />;
+            return <ListCard key={entry.id} entry={entry} bgColor={bgColor} index={idx} />;
           })
         )}
-      </motion.div>
+      </div>
     </div>
   );
 }

@@ -13,8 +13,7 @@ export async function GET(request: Request) {
 
   try {
     const res = await fetch(`${APPS_SCRIPT_URL}?action=${action}`, {
-      cache: "force-cache",
-      next: { tags: ["entries"] },
+      cache: "no-store",
     });
     
     if (!res.ok) throw new Error("Failed to fetch from Google Apps Script");

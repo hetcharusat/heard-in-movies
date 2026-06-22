@@ -44,7 +44,7 @@ export function EntryForm({ initialNextNumber }: EntryFormProps) {
     }
   }, [movie]);
 
-  const handleGenerate = () => {
+  useEffect(() => {
     if (!song || !movie) return;
     
     const md = generateMarkdown({
@@ -57,7 +57,7 @@ export function EntryForm({ initialNextNumber }: EntryFormProps) {
     });
     
     setMarkdown(md);
-  };
+  }, [song, movie, nextNumber, editedSongTitle, editedArtist, editedUrl, editedMovieTitle, editedYear]);
 
   const handleSave = async () => {
     if (!song || !movie) return;
@@ -165,13 +165,7 @@ export function EntryForm({ initialNextNumber }: EntryFormProps) {
             </div>
           </div>
 
-          <Button 
-            onClick={handleGenerate} 
-            className="mt-4 !bg-white"
-          >
-            <Sparkles size={18} strokeWidth={3} />
-            Generate Markdown
-          </Button>
+
         </div>
       )}
 
