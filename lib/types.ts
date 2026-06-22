@@ -15,6 +15,7 @@ export interface Movie {
 
 export interface ArchiveEntry {
   id: string;
+  number?: number;
   song: string;
   artist: string;
   movie: string;
